@@ -13,7 +13,10 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.telephony.SmsManager;
@@ -37,14 +40,15 @@ import com.example.android.messagefriend.MessageUtils.TextMessage;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReadMessageActivity extends AppCompatActivity {
+public class ReadMessageActivity extends AppCompatActivity
+             implements LoaderManager.LoaderCallbacks<Cursor>{
     private static final int READ_SMS_PERMISSIONS_REQUEST = 1;
 
     private static final String TAG = "ReadMessageActivity";
 
     private ListView mMessagesListView;
 
-    private ArrayAdapter messageAdapter;
+    private MessageAdapter messageAdapter;
 
     private ArrayList<TextMessage> smsMessagesList = new ArrayList<TextMessage>();
 
@@ -55,13 +59,6 @@ public class ReadMessageActivity extends AppCompatActivity {
 
         // Get reference to the ListView for storing messages
         mMessagesListView = (ListView) findViewById(R.id.messages_list_view);
-
-        // Creates the Adapter
-        messageAdapter = new MessageAdapter(this, smsMessagesList);
-
-        // Sets an adapter for the ListView
-        mMessagesListView.setAdapter(messageAdapter);
-
 
         // Set up Broadcast Receiver and callback method
         SmsReceiver.bindListener(new SmsListener() {
@@ -88,7 +85,10 @@ public class ReadMessageActivity extends AppCompatActivity {
             }
         });
 
-        checkForPermissions();
+        // Prepare the loader. Either re-connect with an existing one
+        // or start a new one.
+        getSupportLoaderManager().initLoader(0,null, this);
+        //checkForPermissions();
     }
 
     public void checkForPermissions() {
@@ -96,9 +96,10 @@ public class ReadMessageActivity extends AppCompatActivity {
                 != PackageManager.PERMISSION_GRANTED) {
             getPermissionToReadSMS();
         } else {
-            refreshInbox();
+            //refreshInbox();
         }
     }
+
 
     /**
      * Updates the inbox with the current SMS messages on the device
@@ -141,8 +142,11 @@ public class ReadMessageActivity extends AppCompatActivity {
     public void onSmsMessageReceived(String phoneNumber, String message) {
         Log.i(TAG, message);
         TextMessage newMessage = new TextMessage(phoneNumber, message);
-        messageAdapter.add(newMessage);
-        messageAdapter.notifyDataSetChanged();
+
+        if (messageAdapter != null) {
+            messageAdapter.add(newMessage);
+            messageAdapter.notifyDataSetChanged();
+        }
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
         boolean autoReply = sharedPref.getBoolean(SettingsFragment.AUTOMATIC_RESPONSES_ALLOWED_KEY, false);
@@ -210,13 +214,79 @@ public class ReadMessageActivity extends AppCompatActivity {
         startActivity(settingsIntent);
     }
 
+    private ArrayList<TextMessage> mMessagesList;
+
+    /**
+     * Returns a new CursorLoader for Querying the devices inbox for SMS messages
+     * @param id
+     * @param args
+     * @return
+     */
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        final String SMS_INBOX = "content://sms/inbox";
+        Uri CONTACT_URI = Uri.parse(SMS_INBOX);
+        CursorLoader cursorLoader = new CursorLoader(this, CONTACT_URI, null, null,
+                null, null);
+        return cursorLoader;
+    }
+
+    /**
+     * Retrieves information from the cursor and sets up the adapter for the list view displaying
+     * SMS messages
+     * @param loader a Loader<Cursor> object
+     * @param data the cursor containing the SMS messages in the devices inbox
+     */
+    @Override
+    public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        mMessagesList = getMessagesFromInbox(data);
+        messageAdapter = new MessageAdapter(this, mMessagesList);
+        mMessagesListView.setAdapter(messageAdapter);
+
+    }
+
+    @Override
+    public void onLoaderReset(Loader<Cursor> loader) {
+
+    }
+
+    /**
+     * Returns a list containing the phone number and message for all the SMS messages currently
+     * in the devices inbox
+     */
+    private ArrayList<TextMessage> getMessagesFromInbox(Cursor mInboxCursor) {
+        ArrayList<TextMessage> inboxMessageList = new ArrayList<TextMessage>();
+
+        // get the index for the phone number and message
+        int indexBody = mInboxCursor.getColumnIndex("body");
+        int indexAddress = mInboxCursor.getColumnIndex("address");
+
+        // There are no messages to retrieve
+        if (indexBody < 0 || !mInboxCursor.moveToFirst()) {
+            return inboxMessageList;
+        }
+
+        //messageAdapter.clear();
+
+        do {
+            // Create new TextMessage object to store contents from the message
+            TextMessage currentMessage = new TextMessage(mInboxCursor.getString(indexAddress),
+                    mInboxCursor.getString(indexBody));
+            inboxMessageList.add(currentMessage);
+        } while (mInboxCursor.moveToNext());
+
+        return inboxMessageList;
+    }
+
+
     /**
      * Custom ArrayAdapter for displaying the contents of SMS messages
      */
     public class MessageAdapter extends ArrayAdapter<TextMessage> {
-
+        private Cursor mCursor;
         private Context mContext;
         private List<TextMessage> mMessagesList = new ArrayList<TextMessage>();
+
 
         public MessageAdapter(@NonNull Context context,  ArrayList<TextMessage> messageList) {
             super(context, 0, messageList);
@@ -232,14 +302,24 @@ public class ReadMessageActivity extends AppCompatActivity {
                 listItem = LayoutInflater.from(mContext).inflate(R.layout.message_list_item_content,
                         parent,false);
             }
+
+            // Gets the current TextMessage
             TextMessage currentMessage = mMessagesList.get(position);
+
+            // Displays the phone number
             TextView numberTextView = (TextView) listItem.findViewById(R.id.phone_number_text_view);
             numberTextView.setText(currentMessage.getPhoneNumber());
 
+            // Displays the message content
             TextView messageTextView = (TextView) listItem.findViewById(R.id.sms_message_text_view);
             messageTextView.setText(currentMessage.getMessage());
 
             return listItem;
+        }
+
+        public void setMessageList(ArrayList<TextMessage> messageList) {
+            mMessagesList = messageList;
+            notifyDataSetChanged();
         }
     }
 }

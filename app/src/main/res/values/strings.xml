@@ -12,8 +12,9 @@
     <!-- Contact search hint -->
     <string name="contact_search_hint">Search for contact</string>
 
-    <!-- Send Message Button Title -->
+    <!-- ComposeMessgaeActivity Button Title -->
     <string name="send_message_text">Send Message</string>
+    <string name="search_contact_title">Search Contacts</string>
 
     <!-- Title for Settings action in options bar -->
     <string name="settings_text">Settings</string>

@@ -26,24 +26,29 @@
         android:layout_margin="@dimen/default_margin"
         android:orientation="vertical">
 
-
-            <EditText
-                android:id="@+id/phone_number_edit_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:hint="@string/phone_number_hint"/>
-
-            <TextView
-                android:id="@+id/number_display_text_view"
+            <LinearLayout
+                android:id="@+id/contacts_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/phone_number_edit_text"
-                android:visibility="invisible"/>
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/phone_number_edit_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/phone_number_hint"/>
+                <Button
+                    android:id="@+id/contact_search_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/search_contact_title"/>
+
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/number_display_text_view">
+                android:layout_below="@+id/contacts_layout" >
 
                 <EditText
                     android:id="@+id/compose_message_edit_text"

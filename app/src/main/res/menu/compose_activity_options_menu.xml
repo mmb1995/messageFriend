@@ -5,8 +5,8 @@
 
     <item
         android:id="@+id/search_button"
-        android:title="@string/contact_search_hint"
-        app:showAsAction="collapseActionView|ifRoom"/>
+        android:title="@string/action_settings"
+        app:showAsAction="never"/>
 
     <!--
     <item

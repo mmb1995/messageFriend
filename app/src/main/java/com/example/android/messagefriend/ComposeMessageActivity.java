@@ -15,7 +15,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 public class ComposeMessageActivity extends AppCompatActivity {
@@ -29,7 +28,10 @@ public class ComposeMessageActivity extends AppCompatActivity {
 
     private static final int MY_PERMISSIONS_REQUEST_SEND_SMS = 0;
 
-    TextView mPhoneNumberTextView;
+    EditText mPhoneNumberEditText;
+    Button mSearchContactsButton;
+
+
     Button mSendMessageButton;
     EditText mComposeMessageEditText;
 
@@ -41,10 +43,21 @@ public class ComposeMessageActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_compose_message);
 
-        mPhoneNumberTextView = findViewById(R.id.number_display_text_view);
+        // Gets Reference to views related to the contact for the SMS message
+        mPhoneNumberEditText = (EditText) findViewById(R.id.phone_number_edit_text);
+        mSearchContactsButton = (Button) findViewById(R.id.contact_search_button);
+
+        // Sets onClickListener for mSearchContactsButton
+        mSearchContactsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pickContact();
+            }
+        });
+
 
         // get Reference to EditText for composing messages
-        mComposeMessageEditText = findViewById(R.id.compose_message_edit_text);
+        mComposeMessageEditText =  (EditText) findViewById(R.id.compose_message_edit_text);
 
         // Get Reference to send message button
         mSendMessageButton = (Button) findViewById(R.id.send_message_button);
@@ -76,6 +89,12 @@ public class ComposeMessageActivity extends AppCompatActivity {
         startActivityForResult(pickContactIntent, PICK_CONTACT_REQUEST);
     }
 
+    /**
+     * Recieves the information about the contact selected by the user
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // Check which request to respond to
@@ -120,8 +139,7 @@ public class ComposeMessageActivity extends AppCompatActivity {
      * @param number the phone number for the selected contact
      */
     private void displayPhoneNumber(String number) {
-        mPhoneNumberTextView.setText(number);
-        mPhoneNumberTextView.setVisibility(View.VISIBLE);
+        mPhoneNumberEditText.setText(number);
     }
 
     /**
@@ -167,9 +185,9 @@ public class ComposeMessageActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch(item.getItemId()) {
             case R.id.search_button:
-                // Use native contacts app to allow user to pick a contact
-                pickContact();
-                return true;
+                // launch the settings activity
+                Intent settingsIntent = new Intent(this, SettingsActivity.class);
+                startActivity(settingsIntent);
             default:
                 return super.onOptionsItemSelected(item);
         }
