@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+        <SwitchPreference
+            android:key="auto_response_switch_key"
+            android:title="@string/auto_switch_title"
+            android:summary="@string/switch_summary"
+            android:defaultValue="false"/>
+
+        <EditTextPreference
+            android:key="user_text_response_key"
+            android:title="@string/auto_response_edit_text_title"
+            android:summary="@string/edit_preference_summary"
+            android:dialogMessage="@string/edit_dialog_message"
+            android:defaultValue=" "/>
+
+</PreferenceScreen>

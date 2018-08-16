@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".ComposeMessageActivity">
+
+    <!-- Creates the apps action bar -->
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/my_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:layout_marginBottom="@dimen/default_margin"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/my_toolbar"
+        android:padding="@dimen/default_padding"
+        android:layout_margin="@dimen/default_margin"
+        android:orientation="vertical">
+
+
+            <EditText
+                android:id="@+id/phone_number_edit_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="@string/phone_number_hint"/>
+
+            <TextView
+                android:id="@+id/number_display_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/phone_number_edit_text"
+                android:visibility="invisible"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/number_display_text_view">
+
+                <EditText
+                    android:id="@+id/compose_message_edit_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/compose_message_hint"/>
+                <Button
+                    android:id="@+id/send_message_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/send_message_text"/>
+
+            </LinearLayout>
+
+    </RelativeLayout>
+
+</RelativeLayout>

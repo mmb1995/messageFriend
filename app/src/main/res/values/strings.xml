@@ -1,0 +1,33 @@
+<resources>
+    <string name="app_name">MessageFriend</string>
+
+    <!--Compose Message EditText hints -->
+    <string name="compose_message_hint">Compose message</string>
+    <string name="phone_number_hint">Enter Phone Number</string>
+
+    <!-- Menu resources -->
+    <string name="search_title">Search</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- Contact search hint -->
+    <string name="contact_search_hint">Search for contact</string>
+
+    <!-- Send Message Button Title -->
+    <string name="send_message_text">Send Message</string>
+
+    <!-- Title for Settings action in options bar -->
+    <string name="settings_text">Settings</string>
+
+    <!-- Preference Resources -->
+    <string name="auto_switch_title">Allow Automatic Replies</string>
+    <string name="auto_response_edit_text_title">Enter Automatic Reply</string>
+    <string name="switch_summary">App will automatically reply when messages are received</string>
+    <string name="edit_preference_summary">This message will be automatically sent as a reply to received messages when automatic replies are enabled</string>
+    <string name="edit_dialog_message">Enter reply message</string>
+    <string name="default_message"></string>
+
+    <!-- Strings for Notfications -->
+    <string name="main_notification_channel_name">Primary</string>
+    <string name="message_reminder_notification_title">New Message Received</string>
+    <string name="message_reminder_notification_body">View your new message now</string>
+</resources>
