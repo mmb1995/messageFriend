@@ -3,19 +3,44 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:padding="@dimen/default_padding">
 
-    <!-- displays the phone number of the device that sent the message -->
-    <TextView
-        android:id="@+id/phone_number_text_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+    <ImageView
+        android:id="@+id/contact_icon_image_view"
+        android:layout_width="45dp"
+        android:layout_height="45dp" />
 
-    <!-- displays the message that was sent -->
+    <!-- Displays the phone number of the sender and the contents of the message -->
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingLeft="@dimen/default_padding"
+        android:layout_weight="2">
+
+        <TextView
+            android:id="@+id/phone_number_display_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:paddingLeft="@dimen/default_padding"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/message_display_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="@dimen/default_padding"
+            android:textSize="15sp"/>
+    </LinearLayout>
+
+    <!-- Displays the time the message was sent -->
     <TextView
-        android:id="@+id/sms_message_text_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:id="@+id/time_display_view"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_weight="1"/>
 
 </LinearLayout>

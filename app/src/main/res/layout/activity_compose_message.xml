@@ -18,51 +18,60 @@
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"/>
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/my_toolbar"
-        android:padding="@dimen/default_padding"
-        android:layout_margin="@dimen/default_margin"
-        android:orientation="vertical">
+         <!-- Layout for choosing contact or manually entering phone number -->
+        <LinearLayout
+            android:id="@+id/contacts_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#ffffff"
+            android:orientation="horizontal"
+            android:layout_below="@id/my_toolbar"
+            android:padding="@dimen/default_padding">
 
-            <LinearLayout
-                android:id="@+id/contacts_layout"
-                android:layout_width="match_parent"
+            <EditText
+                android:id="@+id/phone_number_edit_text"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_weight="1"
+                android:layout_gravity="center"
+                android:hint="@string/phone_number_hint"
+                android:background="@android:color/transparent"
+                android:maxLines="2"/>
+            <ImageButton
+                android:id="@+id/contact_search_button"
+                android:layout_width="64dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackground"
+                android:src="@drawable/baseline_contacts_black_18dp"/>
 
-                <EditText
-                    android:id="@+id/phone_number_edit_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/phone_number_hint"/>
-                <Button
-                    android:id="@+id/contact_search_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/search_contact_title"/>
+        </LinearLayout>
 
-            </LinearLayout>
+        <!-- Layout for composing and sending a message -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/default_padding"
+            android:background="#ffffff"
+            android:layout_alignParentBottom="true">
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <EditText
+                android:id="@+id/compose_message_edit_text"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/contacts_layout" >
+                android:layout_weight="1"
+                android:layout_gravity="center"
+                android:background="@android:color/transparent"
+                android:hint="@string/compose_message_hint"
+                android:maxLines="6"/>
+            <ImageButton
+                android:id="@+id/send_message_button"
+                android:layout_width="64dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackground"
+                android:layout_gravity="center"
+                android:src="@drawable/baseline_send_black_18dp" />
 
-                <EditText
-                    android:id="@+id/compose_message_edit_text"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/compose_message_hint"/>
-                <Button
-                    android:id="@+id/send_message_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/send_message_text"/>
+        </LinearLayout>
 
-            </LinearLayout>
-
-    </RelativeLayout>
 
 </RelativeLayout>

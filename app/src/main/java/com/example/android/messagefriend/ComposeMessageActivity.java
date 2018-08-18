@@ -13,8 +13,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 public class ComposeMessageActivity extends AppCompatActivity {
@@ -29,10 +29,10 @@ public class ComposeMessageActivity extends AppCompatActivity {
     private static final int MY_PERMISSIONS_REQUEST_SEND_SMS = 0;
 
     EditText mPhoneNumberEditText;
-    Button mSearchContactsButton;
+    ImageButton mSearchContactsButton;
 
 
-    Button mSendMessageButton;
+    ImageButton mSendMessageButton;
     EditText mComposeMessageEditText;
 
     String mCurrentPhoneNumber;
@@ -45,7 +45,7 @@ public class ComposeMessageActivity extends AppCompatActivity {
 
         // Gets Reference to views related to the contact for the SMS message
         mPhoneNumberEditText = (EditText) findViewById(R.id.phone_number_edit_text);
-        mSearchContactsButton = (Button) findViewById(R.id.contact_search_button);
+        mSearchContactsButton = (ImageButton) findViewById(R.id.contact_search_button);
 
         // Sets onClickListener for mSearchContactsButton
         mSearchContactsButton.setOnClickListener(new View.OnClickListener() {
@@ -60,7 +60,7 @@ public class ComposeMessageActivity extends AppCompatActivity {
         mComposeMessageEditText =  (EditText) findViewById(R.id.compose_message_edit_text);
 
         // Get Reference to send message button
-        mSendMessageButton = (Button) findViewById(R.id.send_message_button);
+        mSendMessageButton = (ImageButton) findViewById(R.id.send_message_button);
 
         // set onClickListener for send message button
         mSendMessageButton.setOnClickListener(new View.OnClickListener() {
@@ -90,7 +90,7 @@ public class ComposeMessageActivity extends AppCompatActivity {
     }
 
     /**
-     * Recieves the information about the contact selected by the user
+     * Receives the information about the contact selected by the user
      * @param requestCode
      * @param resultCode
      * @param data

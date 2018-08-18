@@ -1,7 +1,6 @@
 package com.example.android.messagefriend;
 
 import android.Manifest;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,6 +12,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
@@ -28,10 +28,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.amulyakhare.textdrawable.TextDrawable;
+import com.amulyakhare.textdrawable.util.ColorGenerator;
+import com.example.android.messagefriend.MessageUtils.MessageDateUtils;
 import com.example.android.messagefriend.MessageUtils.NotificationUtils;
 import com.example.android.messagefriend.MessageUtils.SmsListener;
 import com.example.android.messagefriend.MessageUtils.SmsReceiver;
@@ -42,7 +46,7 @@ import java.util.List;
 
 public class ReadMessageActivity extends AppCompatActivity
              implements LoaderManager.LoaderCallbacks<Cursor>{
-    private static final int READ_SMS_PERMISSIONS_REQUEST = 1;
+    private static final int SMS_PERMISSIONS_REQUEST = 1;
 
     private static final String TAG = "ReadMessageActivity";
 
@@ -50,7 +54,6 @@ public class ReadMessageActivity extends AppCompatActivity
 
     private MessageAdapter messageAdapter;
 
-    private ArrayList<TextMessage> smsMessagesList = new ArrayList<TextMessage>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,8 +66,8 @@ public class ReadMessageActivity extends AppCompatActivity
         // Set up Broadcast Receiver and callback method
         SmsReceiver.bindListener(new SmsListener() {
             @Override
-            public void messageReceived(String phoneNumber, String messageText) {
-                onSmsMessageReceived(phoneNumber, messageText);
+            public void messageReceived(String phoneNumber, String messageText, long time) {
+                onSmsMessageReceived(phoneNumber, messageText, time);
             }
         });
 
@@ -76,62 +79,59 @@ public class ReadMessageActivity extends AppCompatActivity
         FloatingActionButton mFab = (FloatingActionButton) findViewById(R.id.fab);
 
         final Context context = getApplicationContext();
+
         // Set up onClickListener for Floating Action Button
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(context,"Button Pressed", Toast.LENGTH_SHORT).show();
                 launchComposeMessageActivity();
             }
         });
 
-        // Prepare the loader. Either re-connect with an existing one
-        // or start a new one.
-        getSupportLoaderManager().initLoader(0,null, this);
-        //checkForPermissions();
+        // Check to see if the user has granted the proper permissions
+        checkSmsPermissions();
     }
 
-    public void checkForPermissions() {
+
+    /**
+     * Prompts the user to allow the app to grant permission to read and send sms messages
+     */
+    public void checkSmsPermissions() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_SMS)
-                != PackageManager.PERMISSION_GRANTED) {
-            getPermissionToReadSMS();
+                != PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(this,
+                Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+
+            // prompt user for necessary permissions
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_SMS)) {
+                Toast.makeText(this, "Please allow the app permission to read and send SMS Messages",
+                        Toast.LENGTH_SHORT).show();
+            }
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.READ_SMS,
+                            Manifest.permission.SEND_SMS}, SMS_PERMISSIONS_REQUEST);
         } else {
-            //refreshInbox();
+            // Permission already granted set up loader to get SMS messages in the phones inbox
+            getSupportLoaderManager().initLoader(0, null, this);
         }
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch(requestCode) {
+            case SMS_PERMISSIONS_REQUEST: {
+                // If request cancelled the results arrays will be empty
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // permission granted
+                    getSupportLoaderManager().initLoader(0, null, this);
 
-    /**
-     * Updates the inbox with the current SMS messages on the device
-     */
-    public void refreshInbox() {
-        ContentResolver contentResolver = getContentResolver();
-        Cursor mInboxCursor = contentResolver.query(Uri.parse("content://sms/inbox"),null,
-                null,null, null );
-        int indexBody = mInboxCursor.getColumnIndex("body");
-        int indexAddress = mInboxCursor.getColumnIndex("address");
+                } else {
+                    // permission denied
+                }
 
-        // There are no messages to retrieve
-        if (indexBody < 0 || !mInboxCursor.moveToFirst()) {
-            return;
+            }
         }
 
-        messageAdapter.clear();
-
-        do {
-            // Create new TextMessage object to store contents from the message
-            TextMessage currentMessage = new TextMessage(mInboxCursor.getString(indexAddress),
-                    mInboxCursor.getString(indexBody));
-            messageAdapter.add(currentMessage);
-        } while (mInboxCursor.moveToNext());
-    }
-
-
-    /**
-     * Prompts the user to allow the app to grant permission to read sms messages
-     */
-    public void getPermissionToReadSMS() {
-
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     /**
@@ -139,9 +139,10 @@ public class ReadMessageActivity extends AppCompatActivity
      * @param phoneNumber phone number for the phone that sent the message
      * @param message the content of the received sms message
      */
-    public void onSmsMessageReceived(String phoneNumber, String message) {
+    public void onSmsMessageReceived(String phoneNumber, String message, long time) {
         Log.i(TAG, message);
-        TextMessage newMessage = new TextMessage(phoneNumber, message);
+        String date = MessageDateUtils.convertLongToDate(time);
+        TextMessage newMessage = new TextMessage(phoneNumber, message, date);
 
         if (messageAdapter != null) {
             messageAdapter.add(newMessage);
@@ -169,8 +170,6 @@ public class ReadMessageActivity extends AppCompatActivity
 
         // Send Notification to user that a new Message has been received
         sendNewMessageNotification(phoneNumber, message);
-
-
     }
 
     private void sendNewMessageNotification(String phoneNumber, String message) {
@@ -257,21 +256,21 @@ public class ReadMessageActivity extends AppCompatActivity
     private ArrayList<TextMessage> getMessagesFromInbox(Cursor mInboxCursor) {
         ArrayList<TextMessage> inboxMessageList = new ArrayList<TextMessage>();
 
-        // get the index for the phone number and message
+        // get the index for the phone number, message, and date
         int indexBody = mInboxCursor.getColumnIndex("body");
         int indexAddress = mInboxCursor.getColumnIndex("address");
+        int dateIndex = mInboxCursor.getColumnIndex("date");
 
         // There are no messages to retrieve
         if (indexBody < 0 || !mInboxCursor.moveToFirst()) {
             return inboxMessageList;
         }
 
-        //messageAdapter.clear();
-
         do {
             // Create new TextMessage object to store contents from the message
+            String date = MessageDateUtils.convertLongToDate(mInboxCursor.getLong(dateIndex));
             TextMessage currentMessage = new TextMessage(mInboxCursor.getString(indexAddress),
-                    mInboxCursor.getString(indexBody));
+                    mInboxCursor.getString(indexBody), date);
             inboxMessageList.add(currentMessage);
         } while (mInboxCursor.moveToNext());
 
@@ -286,12 +285,14 @@ public class ReadMessageActivity extends AppCompatActivity
         private Cursor mCursor;
         private Context mContext;
         private List<TextMessage> mMessagesList = new ArrayList<TextMessage>();
+        private ColorGenerator generator;
 
 
         public MessageAdapter(@NonNull Context context,  ArrayList<TextMessage> messageList) {
             super(context, 0, messageList);
             mContext = context;
             mMessagesList = messageList;
+            generator = ColorGenerator.MATERIAL;
         }
 
         @NonNull
@@ -307,13 +308,30 @@ public class ReadMessageActivity extends AppCompatActivity
             TextMessage currentMessage = mMessagesList.get(position);
 
             // Displays the phone number
-            TextView numberTextView = (TextView) listItem.findViewById(R.id.phone_number_text_view);
+            TextView numberTextView = (TextView) listItem.findViewById(R.id.phone_number_display_view);
             numberTextView.setText(currentMessage.getPhoneNumber());
 
             // Displays the message content
-            TextView messageTextView = (TextView) listItem.findViewById(R.id.sms_message_text_view);
+            TextView messageTextView = (TextView) listItem.findViewById(R.id.message_display_view);
             messageTextView.setText(currentMessage.getMessage());
 
+            // Displays the date
+            TextView dateTextView = (TextView) listItem.findViewById(R.id.time_display_view);
+            dateTextView.setText(currentMessage.getDate());
+
+            // Display the icon next to the message
+            ImageView iconTextView = (ImageView) listItem.findViewById(R.id.contact_icon_image_view);
+            String iconLetter = "";
+            if (Character.isDigit(currentMessage.getPhoneNumber().charAt(0))) {
+                iconLetter = "#";
+            } else {
+                iconLetter = "" + currentMessage.getPhoneNumber().charAt(0);
+            }
+
+            // Create a new TextDrawable for the icon's background
+            TextDrawable drawable = TextDrawable.builder().buildRound(iconLetter,
+                    generator.getRandomColor());
+            iconTextView.setImageDrawable(drawable);
             return listItem;
         }
 

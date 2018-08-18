@@ -22,9 +22,10 @@ public class SmsReceiver extends BroadcastReceiver {
 
             String sender = smsMessage.getDisplayOriginatingAddress();
             String messageBody = smsMessage.getMessageBody();
+            long timeInMillis = smsMessage.getTimestampMillis();
 
             // Pass the message body to the interface
-            mListener.messageReceived(sender, messageBody);
+            mListener.messageReceived(sender, messageBody, timeInMillis);
         }
     }
 

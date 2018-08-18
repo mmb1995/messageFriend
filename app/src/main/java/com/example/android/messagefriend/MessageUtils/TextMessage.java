@@ -4,10 +4,12 @@ public class TextMessage {
 
     private String mPhoneNumber;
     private String mMessage;
+    private String date;
 
-    public TextMessage(String phoneNumber, String message) {
+    public TextMessage(String phoneNumber, String message, String date) {
         this.mPhoneNumber = phoneNumber;
         this.mMessage = message;
+        this.date = date;
     }
 
     public String getPhoneNumber() {
@@ -17,4 +19,6 @@ public class TextMessage {
     public String getMessage() {
         return mMessage;
     }
+
+    public String getDate() {return date;}
 }
