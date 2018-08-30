@@ -25,4 +25,4 @@ This is a simple messaging app that can be send and receive text based SMS messa
 - At this time multimedia messages as well as group messages/conversations are not supported by this app. These may be added at a later date.
 
 ## License
-The contents of this repository are covered under the [Apache License, Version 2.0](messageFriend/LICENSE)
+The contents of this repository are covered under the [Apache License, Version 2.0](LICENSE)
