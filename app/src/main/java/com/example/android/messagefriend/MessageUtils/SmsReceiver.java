@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.telephony.PhoneNumberUtils;
 import android.telephony.SmsMessage;
 
 public class SmsReceiver extends BroadcastReceiver {
@@ -21,11 +22,12 @@ public class SmsReceiver extends BroadcastReceiver {
             SmsMessage smsMessage = SmsMessage.createFromPdu((byte[]) pdus[i]);
 
             String sender = smsMessage.getDisplayOriginatingAddress();
+            String formattedNumber = PhoneNumberUtils.formatNumber(sender);
             String messageBody = smsMessage.getMessageBody();
             long timeInMillis = smsMessage.getTimestampMillis();
 
             // Pass the message body to the interface
-            mListener.messageReceived(sender, messageBody, timeInMillis);
+            mListener.messageReceived(formattedNumber, messageBody, timeInMillis);
         }
     }
 

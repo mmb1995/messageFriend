@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.telephony.PhoneNumberUtils;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.Menu;
@@ -34,9 +35,6 @@ public class ComposeMessageActivity extends AppCompatActivity {
 
     ImageButton mSendMessageButton;
     EditText mComposeMessageEditText;
-
-    String mCurrentPhoneNumber;
-    String mCurrentTextMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,9 +114,6 @@ public class ComposeMessageActivity extends AppCompatActivity {
                 int column = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
                 String number = cursor.getString(column);
 
-                // Sets the current number to send a message to
-                setPhoneNumber(number);
-
                 // displays the number for the selected contact
                 displayPhoneNumber(number);
 
@@ -127,19 +122,12 @@ public class ComposeMessageActivity extends AppCompatActivity {
     }
 
     /**
-     * Sets the value for the selected phone number
-     * @param number the phone number of the selected phone number
-     */
-    private void setPhoneNumber(String number) {
-        mCurrentPhoneNumber = number;
-    }
-
-    /**
      * Displays the selected phone number
      * @param number the phone number for the selected contact
      */
     private void displayPhoneNumber(String number) {
-        mPhoneNumberEditText.setText(number);
+        mPhoneNumberEditText.setText("");
+        mPhoneNumberEditText.append(number);
     }
 
     /**
@@ -147,14 +135,18 @@ public class ComposeMessageActivity extends AppCompatActivity {
      */
     private void sendMessage() {
         // Message to be sent
-        mCurrentTextMessage = mComposeMessageEditText.getText().toString();
+        String mCurrentTextMessage = mComposeMessageEditText.getText().toString();
+
+        // Gets the current phone number and formats it
+        String phoneNumber = PhoneNumberUtils.formatNumber(mPhoneNumberEditText.getText().toString());
+
         Log.i(TAG,"Checking Permissions for SMS message");
 
         // Attempts to send SMS message
         try {
             // Message successfully sent
             SmsManager smsManager = SmsManager.getDefault();
-            smsManager.sendTextMessage(EMULATOR_PHONE_NUMBER, null, mCurrentTextMessage,
+            smsManager.sendTextMessage(phoneNumber, null, mCurrentTextMessage,
                     null, null);
             Toast.makeText(this,"SMS Sent Successfully", Toast.LENGTH_LONG).show();
             mComposeMessageEditText.getText().clear();
